@@ -12,7 +12,7 @@ from itertools import groupby, chain
 
 """
 
-Usage : python makeYML_part1.py <sampleListFile> <path_to_fastqDir> <patyml> <outdir_c> <outdir_a>
+Usage : python makeYML_part1.py <sampleListFile> <path_to_fastqDir> <patyml> <outdir_c> <outdir_a> <outdir_s>
 Author: Alva James
 Purpose : 
     Given the list of sample names and path to the fastq.gz files for those samples, creates YAML input files for the CWL pipeline part1
@@ -24,6 +24,7 @@ parser.add_argument("<path_to_fastqDir>", help="directory where the fastq.gz fil
 parser.add_argument("<outdir_a>", help="directory where the alignment results should be stored")
 parser.add_argument("<ymljobs>", help="directory where the yml submissions should be stored")
 parser.add_argument("<outdir_c>", help="directory where the count results should be stored")
+parser.add_argument("<outdir_s>", help="directory where the count results should be stored")
 parser.parse_args()
 
 samplelistFile = sys.argv[1]
@@ -31,11 +32,12 @@ fastqDir  = sys.argv[2]
 patyml    = sys.argv[3]
 outdir_c  = sys.argv[4]
 outdir_a  = sys.argv[5]
+outdir_s  = sys.argv[6]
 
 templateFile = '/cluster/home/aalva/Projects/PHRT-Immuno/scripts/yml_scripts/temp_part1'
 samples1     = {}
 samples2     = {}
-yml_list     = ['spladder_gtf', 'spladder_outDir','spladder_out_dir1','spladder_out_dir2','spladder_confidence','spladder_merge_graphs','spladder_alt','spladder_RL', 'spladder_phase2','spladder_primary_alignment']  
+yml_list     = ['spladder_gtf', 'spladder_outDir','spladder_out_dir1','spladder_out_dir2','spladder_confidence','spladder_merge_graphs','spladder_alt','spladder_RL', 'spladder_phase2','spladder_primary_alignment','spladder_validate']  
 yml_data     = {} 
 
 fin = open(templateFile, 'r')
@@ -44,7 +46,7 @@ for line in fin:
     yml_data[line[0]] = line[1]    
 fin.close()
 
-FH_sample = open(samplelis, 'r')
+FH_sample = open(samplelistFile, 'r')
 for line in FH_sample:
     samples1[line.strip().split('\n')[0]] =[]
     samples2[line.strip().split('\n')[0]] =[]
@@ -116,7 +118,6 @@ for sam in SAM1.keys():
     ymlFH.write("genome:\n")
     ymlFH.write(" class: File\n")
     ymlFH.write(" path: /cluster/work/grlab/projects/coukos_immuno/genome/hg19_hs37d5/genome.fa\n")
-
     # sjdbGTFfile
     ymlFH.write("sjdbGTFfile:\n")
     ymlFH.write(" class: File\n")
@@ -129,16 +130,21 @@ for sam in SAM1.keys():
     ymlFH.write("bam:\n")
     ymlFH.write(" class: File\n")
     ymlFH.write(" path: " + sam + "Aligned.sortedByCoord.out.bam\n")
-    ymlFH.write("exp_out: " + outdir_c + sam + ".tsv\n")
+    ymlFH.write("exp_out:\n")
+    ymlFH.write(" class: File\n")
+    ymlFH.write(" path: " + outdir_c + sam + ".tsv\n")
+    ymlFH.write("spladder_bam:\n")
+    ymlFH.write(" class: File\n")
+    ymlFH.write(" path: " + sam + "Aligned.sortedByCoord.out.bam\n")
     for field in yml_list:
         if field not in yml_data:
             print (field, "NOT FOUND. Cannot progress without this field in the input file")
         elif field == 'spladder_gtf' and field in yml_data:
             ymlFH.write("spladder_gtf: \n class: File\n path: " + yml_data['spladder_gtf'] + "\n")
         elif field == 'spladder_outDir' and field in yml_data:
-            ymlFH.write("spladder_outDir: "+ yml_data['spladder_outDir'] + "\n")
+            ymlFH.write("spladder_outDir: "+ yml_data['spladder_outDir'] +"/"+ sam+"'"+ "\n")
         elif field == 'spladder_out_dir1' and field in yml_data:
-            ymlFH.write("spladder_out_dir1: "+ yml_data['spladder_out_dir1'] + "\n")
+            ymlFH.write("spladder_out_dir1: "+ yml_data['spladder_out_dir1'] + "\n")    
         elif field == 'spladder_out_dir2' and field in yml_data:
             ymlFH.write("spladder_out_dir2: "+ yml_data['spladder_out_dir2'] + "\n")
         elif field == 'spladder_confidence' and field in yml_data:
@@ -153,3 +159,5 @@ for sam in SAM1.keys():
             ymlFH.write("spladder_RL: " + yml_data['spladder_RL'] + "\n")
         elif field == 'spladder_primary_alignment' and field in yml_data:
             ymlFH.write("spladder_primary_alignment: " + yml_data['spladder_primary_alignment'] + "\n")
+        elif field == 'spladder_validate' and field in yml_data:
+            ymlFH.write("spladder_validate: " + yml_data['spladder_validate'] + "\n")

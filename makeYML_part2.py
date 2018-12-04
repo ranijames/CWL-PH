@@ -22,7 +22,7 @@ yamlFile = sys.argv[2]
 #templateFile = '/cluster/home/aalva/Projects/PHRT-Immuno/scripts/yml_scripts/templateFile_1'
 #yamlFile     = '/cluster/home/aalva/Projects/PHRT-Immuno/results/yml2/part2.yml'
 yml_data     = {}
-yml_list     = ['incremnet_tsv','spladder_gtf', 'spladder_outDir','spladder_out_dir1','spladder_out_dir2', 'spladder_bams','spladder_confidence','spladder_merge_graphs','spladder_alt','spladder_RL', 'spladder_phase2','spladder_primary_alignment', 'samples', 'peptide_outDir', 'reference','gtexJunction']  
+yml_list     = ['incremnet_tsv','spladder_gtf', 'spladder_outDir','spladder_out_dir1','spladder_out_dir2', 'spladder_bams','spladder_confidence','spladder_merge_graphs','spladder_alt','spladder_RL', 'spladder_phase2','spladder_primary_alignment', 'samples', 'peptide_outDir', 'reference','gtexJunction','spladder_validate']  
 
 # reading input file and collecting the provided information
 fin = open(templateFile, 'r')
@@ -82,11 +82,13 @@ for field in yml_list:
         ymlFH.write("spladder_RL: " + yml_data['spladder_RL'] + "\n")
     elif field == 'spladder_primary_alignment' and field in yml_data:
         ymlFH.write("spladder_primary_alignment: " + yml_data['spladder_primary_alignment'] + "\n")
+    elif field == 'spladder_validate' and field in yml_data:
+        ymlFH.write("spladder_validate: " + yml_data['spladder_validate'] + "\n")
     elif field == 'samples' and field in yml_data:
         ymlFH.write("samples: " + yml_data['samples'] + "\n") 
     elif field == 'peptide_outDir' and field in yml_data:
         ymlFH.write('peptide_outDir: ' + yml_data['peptide_outDir'] + "\n")
     elif field == 'reference' and field in yml_data:
-        ymlFH.write("reference: \n class: File\n path: " + yml_data['gtexJunction'] + "\n")
+        ymlFH.write("reference: \n class: File\n path: " + yml_data['reference'] + "\n")
     elif field == 'gtexJunction' and field in yml_data:
         ymlFH.write("gtexJunction: \n class: File\n path: " + yml_data['gtexJunction'] + "\n")
